@@ -45,8 +45,7 @@ public class MensajeDAO {
             try {
                 String query="SELECT * FROM mensajes";
                 ps = conexion.prepareStatement(query);              
-                rs = ps.executeQuery();
-                System.out.println("Lectura de mensajes realizado correctamente!");
+                rs = ps.executeQuery();                
                 
                 while (rs.next()) {
                     System.out.println("ID: " + rs.getInt("id_mensaje"));
@@ -55,6 +54,7 @@ public class MensajeDAO {
                     System.out.println("Fecha: " + rs.getString("fecha_mensaje"));
                     System.out.println("");
                 }
+                System.out.println("Lectura de mensajes realizado correctamente!");                
             } catch (SQLException ex) {
                 System.out.println("No se pudieron recuperar los mensajes!");
                 System.out.println(ex);
@@ -68,12 +68,22 @@ public class MensajeDAO {
         Conexion conexionDB = new Conexion();
         try(Connection conexion = conexionDB.get_connection()) {
             PreparedStatement ps = null;
+            ResultSet rs = null;
             try {
-                String query = "DELETE FROM mensajes WHERE id_mensaje=?";
+                String query = "SELECT * FROM mensajes WHERE id_mensaje=?";
                 ps = conexion.prepareStatement(query);
                 ps.setInt(1, idMensaje);
-                ps.executeUpdate();
-                System.out.println("Mensaje borrado con exito!");
+                rs = ps.executeQuery();
+                if (!rs.next()) {
+                    System.out.println("Ese mensaje no existe!");                                       
+                }
+                else {
+                    query = "DELETE FROM mensajes WHERE id_mensaje=?";
+                    ps = conexion.prepareStatement(query);
+                    ps.setInt(1, idMensaje);
+                    ps.executeUpdate();                
+                    System.out.println("Mensaje borrado con exito!");   
+                }                                                     
             } catch (SQLException ex) {
                 System.out.println("No se pudo borrar el mensaje!");
                 System.out.println(ex);
@@ -88,13 +98,23 @@ public class MensajeDAO {
         Conexion conexionDB = new Conexion();
         try(Connection conexion = conexionDB.get_connection()) {
             PreparedStatement ps = null;
-            try {     
-                String query = "UPDATE mensajes SET mensaje = ? WHERE id_mensaje = ?";
+            ResultSet rs = null;
+            try {
+                String query = "SELECT * FROM mensajes WHERE id_mensaje=?";
                 ps = conexion.prepareStatement(query);
-                ps.setString(1, mensaje.getTexto());
-                ps.setInt(2, mensaje.getIdMensaje());
-                ps.executeUpdate();
-                System.out.println("Se actualizo el mensaje correctamente!");
+                ps.setInt(1, mensaje.getIdMensaje());
+                rs = ps.executeQuery();
+                if (!rs.next()) {
+                    System.out.println("Ese mensaje no existe!");                                       
+                }
+                else {
+                    query = "UPDATE mensajes SET mensaje = ? WHERE id_mensaje = ?";
+                    ps = conexion.prepareStatement(query);
+                    ps.setString(1, mensaje.getTexto());
+                    ps.setInt(2, mensaje.getIdMensaje());
+                    ps.executeUpdate();
+                    System.out.println("Se actualizo el mensaje correctamente!");  
+                }
             } catch (SQLException ex) {
                 System.out.println("No se pudo actualizar el mensaje!");
                 System.out.println(ex);
